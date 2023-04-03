@@ -22,6 +22,7 @@ import reactor.test.StepVerifier;
 
 class MessagesServiceTest extends AbstractIntegrationTest {
 
+  private static final String TOPICS_PREFIX = "test-";
   private static final String MASKED_TOPICS_PREFIX = "masking-test-";
   private static final String NON_EXISTING_TOPIC = UUID.randomUUID().toString();
 
@@ -85,6 +86,37 @@ class MessagesServiceTest extends AbstractIntegrationTest {
       StepVerifier.create(msgsFlux)
           .expectNextMatches(msg -> msg.getContent().equals("***"))
           .expectNextMatches(msg -> msg.getContent().equals("***"))
+          .verifyComplete();
+    } finally {
+      deleteTopic(testTopic);
+    }
+  }
+
+  @Test
+  void sendAndLoadMessages() throws Exception {
+    String testTopic = TOPICS_PREFIX + UUID.randomUUID();
+    try (var producer = KafkaTestProducer.forKafka(kafka)) {
+      createTopic(new NewTopic(testTopic, 1, (short) 1));
+      producer.send(testTopic, "message1");
+      producer.send(testTopic, "message2").get();
+
+      Flux<TopicMessageDTO> msgsFlux = messagesService.loadMessages(
+              cluster,
+              testTopic,
+              new ConsumerPosition(SeekTypeDTO.BEGINNING, testTopic, null),
+              null,
+              null,
+              100,
+              SeekDirectionDTO.FORWARD,
+              StringSerde.name(),
+              StringSerde.name()
+          ).filter(evt -> evt.getType() == TopicMessageEventDTO.TypeEnum.MESSAGE)
+          .map(TopicMessageEventDTO::getMessage);
+
+      // both messages should be present
+      StepVerifier.create(msgsFlux)
+          .expectNextMatches(msg -> msg.getContent().equals("message1"))
+          .expectNextMatches(msg -> msg.getContent().equals("message2"))
           .verifyComplete();
     } finally {
       deleteTopic(testTopic);
