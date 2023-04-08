@@ -8,6 +8,7 @@ import static com.provectus.kafka.ui.serde.api.Serde.Target.VALUE;
 import static java.util.stream.Collectors.toMap;
 
 import com.provectus.kafka.ui.api.MessagesApi;
+import com.provectus.kafka.ui.config.ClustersProperties;
 import com.provectus.kafka.ui.exception.ValidationException;
 import com.provectus.kafka.ui.model.ConsumerPosition;
 import com.provectus.kafka.ui.model.CreateTopicMessageDTO;
@@ -31,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.kafka.common.TopicPartition;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
@@ -43,12 +45,14 @@ import reactor.core.scheduler.Schedulers;
 @Slf4j
 public class MessagesController extends AbstractController implements MessagesApi {
 
-  private static final int MAX_LOAD_RECORD_LIMIT = 100;
+  private static final int DEFAULT_MAX_PAGE_SIZE_LIMIT = 100;
   private static final int DEFAULT_LOAD_RECORD_LIMIT = 20;
 
   private final MessagesService messagesService;
   private final DeserializationService deserializationService;
   private final AccessControlService accessControlService;
+
+  private final ClustersProperties properties;
 
   @Override
   public Mono<ResponseEntity<Void>> deleteTopicMessages(
@@ -92,7 +96,8 @@ public class MessagesController extends AbstractController implements MessagesAp
     seekDirection = seekDirection != null ? seekDirection : SeekDirectionDTO.FORWARD;
     filterQueryType = filterQueryType != null ? filterQueryType : MessageFilterTypeDTO.STRING_CONTAINS;
     int recordsLimit =
-        Optional.ofNullable(limit).map(s -> Math.min(s, MAX_LOAD_RECORD_LIMIT)).orElse(DEFAULT_LOAD_RECORD_LIMIT);
+        Optional.ofNullable(limit).map(s -> Math.min(s, Optional.ofNullable(properties.getPageSizeLimit())
+                .orElse(DEFAULT_MAX_PAGE_SIZE_LIMIT))).orElse(DEFAULT_LOAD_RECORD_LIMIT);
 
     var positions = new ConsumerPosition(
         seekType,

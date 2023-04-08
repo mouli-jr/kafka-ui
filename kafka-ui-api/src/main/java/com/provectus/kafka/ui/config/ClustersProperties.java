@@ -27,6 +27,8 @@ public class ClustersProperties {
 
   String internalTopicPrefix;
 
+  Integer pageSizeLimit;
+
   @Data
   public static class Cluster {
     String name;
