@@ -432,6 +432,56 @@ paths:
         404:
           description: Not found
 
+  /api/clusters/{clusterName}/topicNames:
+    get:
+      tags:
+        - Topics
+      summary: getTopicNames
+      operationId: getTopicNames
+      parameters:
+        - name: clusterName
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: perPage
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: showInternal
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: orderBy
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/TopicColumnsToSort'
+        - name: sortOrder
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/SortOrder'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TopicNamesResponse'
+
 
   /api/clusters/{clusterName}/topics/{topicName}:
     get:
@@ -2059,6 +2109,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Topic'
+
+    TopicNamesResponse:
+      type: array
+      items:
+        type: string
 
     TopicColumnsToSort:
       type: string

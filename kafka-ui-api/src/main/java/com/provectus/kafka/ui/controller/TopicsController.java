@@ -200,6 +200,47 @@ public class TopicsController extends AbstractController implements TopicsApi {
   }
 
   @Override
+  public Mono<ResponseEntity<Flux<String>>> getTopicNames(String clusterName,
+                                                          @Valid Integer page,
+                                                          @Valid Integer perPage,
+                                                          @Valid Boolean showInternal,
+                                                          @Valid String search,
+                                                          @Valid TopicColumnsToSortDTO orderBy,
+                                                          @Valid SortOrderDTO sortOrder,
+                                                          ServerWebExchange exchange) {
+
+    return topicsService.getTopicsForPagination(getCluster(clusterName))
+        .flatMap(existingTopics -> {
+          int pageSize = perPage != null && perPage > 0 ? perPage : DEFAULT_PAGE_SIZE;
+          var topicsToSkip = ((page != null && page > 0 ? page : 1) - 1) * pageSize;
+          var comparator = sortOrder == null || !sortOrder.equals(SortOrderDTO.DESC)
+              ? getComparatorForTopic(orderBy) : getComparatorForTopic(orderBy).reversed();
+          List<InternalTopic> filtered = existingTopics.stream()
+              .filter(topic -> !topic.isInternal()
+                  || showInternal != null && showInternal)
+              .filter(topic -> search == null || StringUtils.containsIgnoreCase(topic.getName(), search))
+              .sorted(comparator)
+              .toList();
+          var totalPages = (filtered.size() / pageSize)
+              + (filtered.size() % pageSize == 0 ? 0 : 1);
+
+          List<String> topicsPage = filtered.stream()
+              .skip(topicsToSkip)
+              .limit(pageSize)
+              .map(InternalTopic::getName)
+              .collect(toList());
+
+          return topicsService.loadTopics(getCluster(clusterName), topicsPage)
+              .flatMapMany(Flux::fromIterable)
+              .filterWhen(dto -> accessControlService.isTopicAccessible(dto, clusterName))
+              .map(dto -> dto.getName())
+              .collectList();
+        })
+        .map(Flux::fromIterable)
+        .map(ResponseEntity::ok);
+  }
+
+  @Override
   public Mono<ResponseEntity<TopicDTO>> updateTopic(
       String clusterName, String topicName, @Valid Mono<TopicUpdateDTO> topicUpdate,
       ServerWebExchange exchange) {
