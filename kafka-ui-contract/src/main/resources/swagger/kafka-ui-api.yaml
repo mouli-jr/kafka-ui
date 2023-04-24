@@ -2111,9 +2111,14 @@ components:
             $ref: '#/components/schemas/Topic'
 
     TopicNamesResponse:
-      type: array
-      items:
-        type: string
+      type: object
+      properties:
+        pageCount:
+          type: integer
+        topics:
+          type: array
+          items:
+            type: string
 
     TopicColumnsToSort:
       type: string

@@ -22,6 +22,7 @@ import com.provectus.kafka.ui.model.TopicConfigDTO;
 import com.provectus.kafka.ui.model.TopicCreationDTO;
 import com.provectus.kafka.ui.model.TopicDTO;
 import com.provectus.kafka.ui.model.TopicDetailsDTO;
+import com.provectus.kafka.ui.model.TopicNamesResponseDTO;
 import com.provectus.kafka.ui.model.TopicUpdateDTO;
 import com.provectus.kafka.ui.model.TopicsResponseDTO;
 import com.provectus.kafka.ui.model.rbac.AccessContext;
@@ -200,14 +201,14 @@ public class TopicsController extends AbstractController implements TopicsApi {
   }
 
   @Override
-  public Mono<ResponseEntity<Flux<String>>> getTopicNames(String clusterName,
-                                                          @Valid Integer page,
-                                                          @Valid Integer perPage,
-                                                          @Valid Boolean showInternal,
-                                                          @Valid String search,
-                                                          @Valid TopicColumnsToSortDTO orderBy,
-                                                          @Valid SortOrderDTO sortOrder,
-                                                          ServerWebExchange exchange) {
+  public Mono<ResponseEntity<TopicNamesResponseDTO>> getTopicNames(String clusterName,
+                                                                   @Valid Integer page,
+                                                                   @Valid Integer perPage,
+                                                                   @Valid Boolean showInternal,
+                                                                   @Valid String search,
+                                                                   @Valid TopicColumnsToSortDTO orderBy,
+                                                                   @Valid SortOrderDTO sortOrder,
+                                                                   ServerWebExchange exchange) {
 
     return topicsService.getTopicsForPagination(getCluster(clusterName))
         .flatMap(existingTopics -> {
@@ -233,10 +234,12 @@ public class TopicsController extends AbstractController implements TopicsApi {
           return topicsService.loadTopics(getCluster(clusterName), topicsPage)
               .flatMapMany(Flux::fromIterable)
               .filterWhen(dto -> accessControlService.isTopicAccessible(dto, clusterName))
-              .map(dto -> dto.getName())
-              .collectList();
+              .collectList()
+              .map(topicsToRender ->
+                  new TopicNamesResponseDTO()
+                      .topics(topicsToRender.stream().map(topics -> topics.getName()).collect(toList()))
+                      .pageCount(totalPages));
         })
-        .map(Flux::fromIterable)
         .map(ResponseEntity::ok);
   }
 
