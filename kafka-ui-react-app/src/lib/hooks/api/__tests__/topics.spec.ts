@@ -14,6 +14,7 @@ const clusterName = 'test-cluster';
 const topicName = 'test-topic';
 
 const topicsPath = `/api/clusters/${clusterName}/topics`;
+const topicNamesPath = `/api/clusters/${clusterName}/topicNames`;
 const topicPath = `${topicsPath}/${topicName}`;
 
 const topicParams = { clusterName, topicName };

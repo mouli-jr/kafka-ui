@@ -49,6 +49,16 @@ export function useTopics(props: GetTopicsRequest) {
     { keepPreviousData: true }
   );
 }
+
+export function useTopicNames(props: GetTopicsRequest) {
+  const { clusterName, ...filters } = props;
+  return useQuery(
+    topicKeys.list(clusterName, filters),
+    () => api.getTopicNames(props),
+    { keepPreviousData: true }
+  );
+}
+
 export function useTopicDetails(props: GetTopicDetailsRequest) {
   return useQuery(topicKeys.details(props), () => api.getTopicDetails(props));
 }
