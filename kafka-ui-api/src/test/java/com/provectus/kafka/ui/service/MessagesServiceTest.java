@@ -129,7 +129,7 @@ class MessagesServiceTest extends AbstractIntegrationTest {
     String testTopic = TOPICS_PREFIX + UUID.randomUUID();
     try (var producer = KafkaTestProducer.forKafka(kafka)) {
       createTopic(new NewTopic(testTopic, 1, (short) 1));
-      IntStream.rangeClosed(1,199).forEach(num -> producer.send(testTopic,Integer.toString(num)));
+      IntStream.rangeClosed(1, 199).forEach(num -> producer.send(testTopic, Integer.toString(num)));
 
       //Sending 200th message and ensuring it's sent.
       producer.send(testTopic, "200").get();
