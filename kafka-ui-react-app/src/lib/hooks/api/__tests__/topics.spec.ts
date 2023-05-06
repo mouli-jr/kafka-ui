@@ -31,6 +31,11 @@ describe('Topics hooks', () => {
     const { result } = renderQueryHook(() => hooks.useTopics({ clusterName }));
     await expectQueryWorks(mock, result);
   });
+  it('handles useTopicNames', async () => {
+    const mock = fetchMock.getOnce(topicNamesPath, []);
+    const { result } = renderQueryHook(() => hooks.useTopicNames({ clusterName }));
+    await expectQueryWorks(mock, result);
+  });
   it('handles useTopicDetails', async () => {
     const mock = fetchMock.getOnce(topicPath, externalTopicPayload);
     const { result } = renderQueryHook(() =>
