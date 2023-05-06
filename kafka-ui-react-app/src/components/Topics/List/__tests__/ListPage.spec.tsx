@@ -9,6 +9,7 @@ import ListPage from 'components/Topics/List/ListPage';
 const clusterName = 'test-cluster';
 
 jest.mock('components/Topics/List/TopicTable', () => () => <>TopicTableMock</>);
+jest.mock('components/Topics/List/SearchResult', () => () => <div>SearchResultMock</div>);
 
 describe('ListPage Component', () => {
   const renderComponent = () =>
@@ -45,6 +46,21 @@ describe('ListPage Component', () => {
 
     it('renders the TopicsTable', () => {
       expect(screen.getByText('TopicTableMock')).toBeInTheDocument();
+    });
+
+    it('empty Search Results', () => {
+      expect(screen.getByPlaceholderText('Search by Topic Name')).toBeInTheDocument();
+
+      const searchInput = screen.getByPlaceholderText('Search by Topic Name');
+      expect(screen.getByText('SearchResultMock')).not.toBeInTheDocument;
+    });
+
+    it('renders the Search Results', () => {
+      expect(screen.getByPlaceholderText('Search by Topic Name')).toBeInTheDocument();
+
+      const searchInput = screen.getByPlaceholderText('Search by Topic Name');
+      userEvent.type(searchInput, '_test_');
+      expect(screen.getByText('SearchResultMock')).toBeInTheDocument();
     });
   });
 });
