@@ -54,6 +54,11 @@ export const topicsPayload: Topic[] = [
   externalTopicPayload,
 ];
 
+export const topicNamesPayload: string[] = [
+  '__internal.topic',
+  'external.topic',
+];
+
 export const topicConsumerGroups: ConsumerGroup[] = [
   {
     groupId: 'amazon.msk.canary.group.broker-7',
