@@ -11,7 +11,7 @@ const SearchResult: React.FC = () => {
   const { data } = useTopicNames({
     clusterName,
     page: Number(1),
-    perPage: Number(searchParams.get('perPage') || 7),
+    perPage: Number(7),
     search: searchParams.get('q') || "*",
     showInternal: !searchParams.has('hideInternal'),
     orderBy: undefined,
