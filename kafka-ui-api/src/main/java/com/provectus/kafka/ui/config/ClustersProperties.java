@@ -27,6 +27,8 @@ public class ClustersProperties {
 
   String internalTopicPrefix;
 
+  Integer pageSizeLimit;
+
   PollingProperties polling = new PollingProperties();
 
   @Data
