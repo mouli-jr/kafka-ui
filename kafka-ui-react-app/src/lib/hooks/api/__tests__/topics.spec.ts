@@ -14,6 +14,7 @@ const clusterName = 'test-cluster';
 const topicName = 'test-topic';
 
 const topicsPath = `/api/clusters/${clusterName}/topics`;
+const topicNamesPath = `/api/clusters/${clusterName}/topicNames`;
 const topicPath = `${topicsPath}/${topicName}`;
 
 const topicParams = { clusterName, topicName };
@@ -28,6 +29,11 @@ describe('Topics hooks', () => {
   it('handles useTopics', async () => {
     const mock = fetchMock.getOnce(topicsPath, []);
     const { result } = renderQueryHook(() => hooks.useTopics({ clusterName }));
+    await expectQueryWorks(mock, result);
+  });
+  it('handles useTopicNames', async () => {
+    const mock = fetchMock.getOnce(topicNamesPath, []);
+    const { result } = renderQueryHook(() => hooks.useTopicNames({ clusterName }));
     await expectQueryWorks(mock, result);
   });
   it('handles useTopicDetails', async () => {

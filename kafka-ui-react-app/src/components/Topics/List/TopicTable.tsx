@@ -21,7 +21,7 @@ const TopicTable: React.FC = () => {
     clusterName,
     page: Number(searchParams.get('page') || 1),
     perPage: Number(searchParams.get('perPage') || PER_PAGE),
-    search: searchParams.get('q') || undefined,
+    //search: searchParams.get('q') || undefined,
     showInternal: !searchParams.has('hideInternal'),
     orderBy: (searchParams.get('sortBy') as TopicColumnsToSort) || undefined,
     sortOrder:

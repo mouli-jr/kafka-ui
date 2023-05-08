@@ -12,6 +12,7 @@ import PlusIcon from 'components/common/Icons/PlusIcon';
 import PageLoader from 'components/common/PageLoader/PageLoader';
 import TopicTable from 'components/Topics/List/TopicTable';
 import { Action, ResourceType } from 'generated-sources';
+import SearchResult from 'components/Topics/List/SearchResult';
 
 const ListPage: React.FC = () => {
   const { isReadOnly } = React.useContext(ClusterContext);
@@ -72,6 +73,7 @@ const ListPage: React.FC = () => {
           Show Internal Topics
         </label>
       </ControlPanelWrapper>
+      <SearchResult />
       <Suspense fallback={<PageLoader />}>
         <TopicTable />
       </Suspense>
